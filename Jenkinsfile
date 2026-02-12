@@ -1,17 +1,11 @@
 pipeline {
     agent any
-
     stages {
-        stage('Hola mundo en pod temporal') {
+        stage('Crear pod') {
             steps {
                 sh '''
-                POD=hola-$(date +%s)
-
-                kubectl run $POD \
-                  --image=alpine \
-                  --restart=Never \
-                  --rm -i \
-                  -- echo "Hola mundo desde pod temporal"
+                kubectl run hola-mundo --image=busybox --restart=Never -- echo "Hola Mundo desde el pod!"
+                kubectl delete pod hola-mundo
                 '''
             }
         }
