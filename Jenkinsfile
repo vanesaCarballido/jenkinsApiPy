@@ -1,11 +1,10 @@
 pipeline {
-    agent any  // Puede correr en cualquier nodo disponible
+    agent any  
 
     stages {
         stage('Saludo') {
             steps {
-                // Este step imprime un mensaje en la consola de Jenkins
-                echo 'Hola desde Jenkins!'
+                echo 'Hola funciona!!'
             }
         }
     }
