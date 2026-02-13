@@ -2,30 +2,25 @@ pipeline {
     agent any
 
     stages {
-        stage('Crear job temporal en Kubernetes') {
+        stage('Crear Job temporal') {
             steps {
-                sh '''
-cat <<EOF > job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: nodotemporal
-spec:
-  ttlSecondsAfterFinished: 0
-  backoffLimit: 0
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-      - name: hola
-        image: busybox
-        command: ["sh", "-c", "echo hola mundo"]
-EOF
+                script {
+                    sh 'kubectl apply -f job.yaml'
 
-kubectl apply -f job.yaml
-kubectl wait --for=condition=complete job/nodotemporal
-kubectl logs job/nodotemporal
-'''
+                    // Esperar a que termine el Job
+                    sh '''
+                    while [ $(kubectl get jobs nodotemporal -o jsonpath='{.status.succeeded}') != "1" ]; do
+                        echo "Terminando el job..."
+                        sleep 2
+                    done
+                    '''
+
+                    // Mostrar los logs 
+                    sh 'kubectl logs job/nodotemporal'
+
+                    // Borrar el job
+                    sh 'kubectl delete job nodotemporal'
+                }
             }
         }
     }

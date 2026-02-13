@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nodotemporal
+spec:
+  template:
+    spec:
+      containers:
+      - name: hola
+        image: busybox
+        command: ["echo", "hola mundo"]
+      restartPolicy: Never
+  backoffLimit: 0
