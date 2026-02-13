@@ -1,26 +1,11 @@
 pipeline {
-    agent any
+    agent any  // Puede correr en cualquier nodo disponible
 
     stages {
-        stage('Crear Job temporal') {
+        stage('Saludo') {
             steps {
-                script {
-                    sh 'kubectl apply -f job.yaml'
-
-                    // Esperar a que termine el Job
-                    sh '''
-                    while [ $(kubectl get jobs nodotemporal -o jsonpath='{.status.succeeded}') != "1" ]; do
-                        echo "Terminando el job..."
-                        sleep 2
-                    done
-                    '''
-
-                    // Mostrar los logs 
-                    sh 'kubectl logs job/nodotemporal'
-
-                    // Borrar el job
-                    sh 'kubectl delete job nodotemporal'
-                }
+                // Este step imprime un mensaje en la consola de Jenkins
+                echo 'Hola desde Jenkins!'
             }
         }
     }
