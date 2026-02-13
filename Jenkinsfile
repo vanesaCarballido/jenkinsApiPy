@@ -1,23 +1,32 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Hola mundo en pod temporal') {
-      steps {
-        sh '''
-          POD=hola-$(date +%s)
+    stages {
+        stage('Crear job temporal en Kubernetes') {
+            steps {
+                sh '''
+cat <<EOF > job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nodotemporal
+spec:
+  ttlSecondsAfterFinished: 0
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: hola
+        image: busybox
+        command: ["sh", "-c", "echo hola mundo"]
+EOF
 
-          kubectl run $POD \
-            --image=reto3:latest \
-            --image-pull-policy=IfNotPresent \
-            --restart=Never \
-            --command -- sh -c "echo Hola mundo desde Jenkins"
-
-          kubectl logs $POD
-
-          kubectl delete pod $POD
-        '''
-      }
+kubectl apply -f job.yaml
+kubectl wait --for=condition=complete job/nodotemporal
+kubectl logs job/nodotemporal
+'''
+            }
+        }
     }
-  }
 }
